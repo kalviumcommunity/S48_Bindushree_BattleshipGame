@@ -10,13 +10,18 @@ private:
     bool sunk;
 
 public:
-    Ship(int x, int y) : x(x), y(y), sunk(false) {}
+    Ship(int x = 0, int y = 0) : x(x), y(y), sunk(false) {}
 
     int getX() const { return this->x; }
     int getY() const { return this->y; }
     bool isSunk() const { return this->sunk; }
 
     void sink() { this->sunk = true; }
+
+    void setPosition(int newX, int newY) {
+        this->x = newX;
+        this->y = newY;
+    }
 };
 
 // Class to represent the Game Board
@@ -31,8 +36,10 @@ public:
         this->grid.resize(size, std::vector<char>(size, '-'));
     }
 
-    void placeShip(int x, int y) {
-        this->ships.emplace_back(x, y);
+    void placeShip(Ship& ship) {
+        int x = ship.getX();
+        int y = ship.getY();
+        this->ships.push_back(ship);
         this->grid[x][y] = 'S';
     }
 
@@ -90,11 +97,15 @@ int main() {
 
     Board board(boardSize);
 
-    // Randomly place ships
+    // Create an array of Ship objects
+    Ship ships[numShips];
+
+    // Randomly assign positions to the ships
     for (int i = 0; i < numShips; ++i) {
         int x = rand() % boardSize;
         int y = rand() % boardSize;
-        board.placeShip(x, y);
+        ships[i].setPosition(x, y);
+        board.placeShip(ships[i]);
     }
 
     playGame(board);
