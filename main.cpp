@@ -12,11 +12,11 @@ private:
 public:
     Ship(int x, int y) : x(x), y(y), sunk(false) {}
 
-    int getX() const { return x; }
-    int getY() const { return y; }
-    bool isSunk() const { return sunk; }
+    int getX() const { return this->x; }
+    int getY() const { return this->y; }
+    bool isSunk() const { return this->sunk; }
 
-    void sink() { sunk = true; }
+    void sink() { this->sunk = true; }
 };
 
 // Class to represent the Game Board
@@ -28,18 +28,18 @@ private:
 
 public:
     Board(int size) : size(size) {
-        grid.resize(size, std::vector<char>(size, '-'));
+        this->grid.resize(size, std::vector<char>(size, '-'));
     }
 
     void placeShip(int x, int y) {
-        ships.emplace_back(x, y);
-        grid[x][y] = 'S';
+        this->ships.emplace_back(x, y);
+        this->grid[x][y] = 'S';
     }
 
     bool attack(int x, int y) {
-        if (grid[x][y] == 'S') {
-            grid[x][y] = 'X';
-            for (auto& ship : ships) {
+        if (this->grid[x][y] == 'S') {
+            this->grid[x][y] = 'X';
+            for (auto& ship : this->ships) {
                 if (ship.getX() == x && ship.getY() == y) {
                     ship.sink();
                     std::cout << "Hit! Ship at (" << x << ", " << y << ") has been sunk!\n";
@@ -47,23 +47,23 @@ public:
                 }
             }
         } else {
-            grid[x][y] = 'O';
+            this->grid[x][y] = 'O';
             std::cout << "Miss at (" << x << ", " << y << ")\n";
         }
         return false;
     }
 
     void printBoard() const {
-        for (int i = 0; i < size; ++i) {
-            for (int j = 0; j < size; ++j) {
-                std::cout << grid[i][j] << " ";
+        for (int i = 0; i < this->size; ++i) {
+            for (int j = 0; j < this->size; ++j) {
+                std::cout << this->grid[i][j] << " ";
             }
             std::cout << std::endl;
         }
     }
 
     bool allShipsSunk() const {
-        for (const auto& ship : ships) {
+        for (const auto& ship : this->ships) {
             if (!ship.isSunk()) return false;
         }
         return true;
