@@ -3,12 +3,12 @@
 #include <cstdlib>
 #include <ctime>
 
-// Class to represent a Ship
 class Ship {
-private:
+public:
     int x, y;
     bool sunk;
 
+<<<<<<< HEAD
 public:
     Ship(int x = 0, int y = 0) : x(x), y(y), sunk(false) {}
 
@@ -22,9 +22,11 @@ public:
         this->x = newX;
         this->y = newY;
     }
+=======
+    Ship(int x, int y) : x(x), y(y), sunk(false) {}
+>>>>>>> 383aaa0746ab520918a0b727de79c5b2b7406a9c
 };
 
-// Class to represent the Game Board
 class Board {
 private:
     std::vector<std::vector<char>> grid;
@@ -32,52 +34,62 @@ private:
     int size;
 
 public:
-    Board(int size) : size(size) {
-        this->grid.resize(size, std::vector<char>(size, '-'));
-    }
+    Board(int size) : size(size), grid(size, std::vector<char>(size, '-')) {}
 
+<<<<<<< HEAD
     void placeShip(Ship& ship) {
         int x = ship.getX();
         int y = ship.getY();
         this->ships.push_back(ship);
         this->grid[x][y] = 'S';
+=======
+    void placeShip(int x, int y) {
+        ships.emplace_back(x, y);
+        grid[x][y] = 'S';
+>>>>>>> 383aaa0746ab520918a0b727de79c5b2b7406a9c
     }
 
     bool attack(int x, int y) {
-        if (this->grid[x][y] == 'S') {
-            this->grid[x][y] = 'X';
-            for (auto& ship : this->ships) {
-                if (ship.getX() == x && ship.getY() == y) {
-                    ship.sink();
-                    std::cout << "Hit! Ship at (" << x << ", " << y << ") has been sunk!\n";
-                    return true;
-                }
+        if (x < 0 || x >= size || y < 0 || y >= size) {
+            std::cout << "Out of bounds!\n";
+            return false;
+        }
+
+        if (grid[x][y] == 'S') {
+            grid[x][y] = 'X';
+            std::cout << "Hit at (" << x << ", " << y << ")!\n";
+            for (auto& ship : ships) {
+                if (ship.x == x && ship.y == y) ship.sunk = true;
             }
+            return true;
+        }
+
+        if (grid[x][y] == 'X' || grid[x][y] == 'O') {
+            std::cout << "Already attacked (" << x << ", " << y << ").\n";
         } else {
-            this->grid[x][y] = 'O';
-            std::cout << "Miss at (" << x << ", " << y << ")\n";
+            grid[x][y] = 'O';
+            std::cout << "Miss at (" << x << ", " << y << ").\n";
         }
         return false;
     }
 
     void printBoard() const {
-        for (int i = 0; i < this->size; ++i) {
-            for (int j = 0; j < this->size; ++j) {
-                std::cout << this->grid[i][j] << " ";
+        for (const auto& row : grid) {
+            for (char cell : row) {
+                std::cout << cell << ' ';
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
     }
 
     bool allShipsSunk() const {
-        for (const auto& ship : this->ships) {
-            if (!ship.isSunk()) return false;
+        for (const auto& ship : ships) {
+            if (!ship.sunk) return false;
         }
         return true;
     }
 };
 
-// Function to play the game
 void playGame(Board& board) {
     int x, y;
     while (!board.allShipsSunk()) {
@@ -86,15 +98,16 @@ void playGame(Board& board) {
         std::cin >> x >> y;
         board.attack(x, y);
     }
-    std::cout << "Congratulations! You've sunk all the ships!\n";
+    std::cout << "All ships sunk! You win!\n";
 }
 
 int main() {
     srand(static_cast<unsigned int>(time(0)));
 
-    const int boardSize = 5;
-    const int numShips = 3;
+    Board board(5);
+    int numShips = 3;
 
+<<<<<<< HEAD
     Board board(boardSize);
 
     // Create an array of Ship objects
@@ -106,6 +119,15 @@ int main() {
         int y = rand() % boardSize;
         ships[i].setPosition(x, y);
         board.placeShip(ships[i]);
+=======
+    for (int i = 0; i < numShips; ++i) {
+        int x, y;
+        do {
+            x = rand() % 5;
+            y = rand() % 5;
+        } while (board.attack(x, y)); // Use attack to check if the cell is already occupied
+        board.placeShip(x, y);
+>>>>>>> 383aaa0746ab520918a0b727de79c5b2b7406a9c
     }
 
     playGame(board);
