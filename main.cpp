@@ -36,17 +36,11 @@ private:
 public:
     Board(int size) : size(size), grid(size, std::vector<char>(size, '-')) {}
 
-<<<<<<< HEAD
     void placeShip(Ship& ship) {
         int x = ship.getX();
         int y = ship.getY();
         this->ships.push_back(ship);
         this->grid[x][y] = 'S';
-=======
-    void placeShip(int x, int y) {
-        ships.emplace_back(x, y);
-        grid[x][y] = 'S';
->>>>>>> 383aaa0746ab520918a0b727de79c5b2b7406a9c
     }
 
     bool attack(int x, int y) {
@@ -107,7 +101,6 @@ int main() {
     Board board(5);
     int numShips = 3;
 
-<<<<<<< HEAD
     Board board(boardSize);
 
     // Create an array of Ship objects
@@ -119,15 +112,6 @@ int main() {
         int y = rand() % boardSize;
         ships[i].setPosition(x, y);
         board.placeShip(ships[i]);
-=======
-    for (int i = 0; i < numShips; ++i) {
-        int x, y;
-        do {
-            x = rand() % 5;
-            y = rand() % 5;
-        } while (board.attack(x, y)); // Use attack to check if the cell is already occupied
-        board.placeShip(x, y);
->>>>>>> 383aaa0746ab520918a0b727de79c5b2b7406a9c
     }
 
     playGame(board);
