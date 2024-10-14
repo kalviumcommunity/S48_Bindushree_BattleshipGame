@@ -4,7 +4,7 @@
 #include <ctime>
 
 class Ship {
-public:
+private:
     int x, y;
     bool sunk;
 
@@ -18,20 +18,27 @@ public:
         totalShips++;  // Increment totalShips when a Ship is created
     }
 
-    int getX() const { return this->x; }
-    int getY() const { return this->y; }
-    bool isSunk() const { return this->sunk; }
+    // Accessor (getter) for x
+    int getX() const { return x; }
 
+    // Mutator (setter) for x
+    void setX(int newX) { x = newX; }
+
+    // Accessor (getter) for y
+    int getY() const { return y; }
+
+    // Mutator (setter) for y
+    void setY(int newY) { y = newY; }
+
+    // Accessor (getter) for sunk
+    bool isSunk() const { return sunk; }
+
+    // Mutator (method) to sink the ship
     void sink() {
-        if (!this->sunk) {  // Only increment sunkShips if it's the first time sinking this ship
-            this->sunk = true;
+        if (!sunk) {  // Only increment sunkShips if it's the first time sinking this ship
+            sunk = true;
             sunkShips++;  // Increment sunkShips when a Ship is sunk
         }
-    }
-
-    void setPosition(int newX, int newY) {
-        this->x = newX;
-        this->y = newY;
     }
 
     // Static function to get the total number of ships
@@ -58,7 +65,10 @@ private:
 public:
     Board(int size) : size(size), grid(size, std::vector<char>(size, '-')) {}
 
-    // Add ship to the board using a pointer to Ship
+    // Accessor (getter) for size
+    int getSize() const { return size; }
+
+    // Mutator (method) to add a ship to the board
     void placeShip(Ship* ship) {
         int x = ship->getX();
         int y = ship->getY();
@@ -66,6 +76,7 @@ public:
         this->grid[x][y] = 'S';
     }
 
+    // Mutator (method) to handle an attack on the board
     bool attack(int x, int y) {
         if (x < 0 || x >= size || y < 0 || y >= size) {
             std::cout << "Out of bounds!\n";
@@ -76,7 +87,9 @@ public:
             grid[x][y] = 'X';
             std::cout << "Hit at (" << x << ", " << y << ")!\n";
             for (auto& ship : ships) {
-                if (ship->getX() == x && ship->getY() == y) ship->sink();
+                if (ship->getX() == x && ship->getY() == y) {
+                    ship->sink();
+                }
             }
             return true;
         }
@@ -90,6 +103,12 @@ public:
         return false;
     }
 
+    // Accessor (getter) to check if all ships are sunk
+    bool allShipsSunk() const {
+        return Ship::getSunkShips() == Ship::getTotalShips();  // Check if all ships are sunk
+    }
+
+    // Print the current state of the board
     void printBoard() const {
         for (const auto& row : grid) {
             for (char cell : row) {
@@ -97,10 +116,6 @@ public:
             }
             std::cout << '\n';
         }
-    }
-
-    bool allShipsSunk() const {
-        return Ship::getSunkShips() == Ship::getTotalShips();  // Check if all ships are sunk
     }
 
     // Destructor to free dynamically allocated ships
@@ -131,11 +146,13 @@ int main() {
 
     Board board(boardSize);  // Only one instance of Board
 
-    // Dynamically allocate memory for Ship objects
+    // Dynamically allocate memory for Ship objects and use accessors/mutators
     for (int i = 0; i < numShips; ++i) {
         int x = rand() % boardSize;
         int y = rand() % boardSize;
-        Ship* newShip = new Ship(x, y);  // Allocate new Ship
+        Ship* newShip = new Ship();
+        newShip->setX(x);  // Use mutator to set the x coordinate
+        newShip->setY(y);  // Use mutator to set the y coordinate
         board.placeShip(newShip);
     }
 
@@ -146,5 +163,3 @@ int main() {
 
     return 0;
 }
-
-
