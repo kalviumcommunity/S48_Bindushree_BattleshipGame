@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <memory>  // For smart pointers
 
 class Ship {
 private:
@@ -59,7 +60,7 @@ int Ship::sunkShips = 0;
 class Board {
 private:
     std::vector<std::vector<char>> grid;
-    std::vector<Ship*> ships;  // Now storing pointers to Ship objects
+    std::vector<std::unique_ptr<Ship>> ships;  // Now using smart pointers to manage Ship objects
     int size;
 
 public:
@@ -69,11 +70,17 @@ public:
     int getSize() const { return size; }
 
     // Mutator (method) to add a ship to the board
-    void placeShip(Ship* ship) {
+    bool placeShip(std::unique_ptr<Ship> ship) {
         int x = ship->getX();
         int y = ship->getY();
-        this->ships.push_back(ship);
+
+        if (grid[x][y] == 'S') {
+            return false;  // Ship already placed at this location
+        }
+
+        this->ships.push_back(std::move(ship));
         this->grid[x][y] = 'S';
+        return true;
     }
 
     // Mutator (method) to handle an attack on the board
@@ -117,13 +124,6 @@ public:
             std::cout << '\n';
         }
     }
-
-    // Destructor to free dynamically allocated ships
-    ~Board() {
-        for (auto ship : ships) {
-            delete ship;
-        }
-    }
 };
 
 void playGame(Board& board) {
@@ -148,12 +148,15 @@ int main() {
 
     // Dynamically allocate memory for Ship objects and use accessors/mutators
     for (int i = 0; i < numShips; ++i) {
-        int x = rand() % boardSize;
-        int y = rand() % boardSize;
-        Ship* newShip = new Ship();
-        newShip->setX(x);  // Use mutator to set the x coordinate
-        newShip->setY(y);  // Use mutator to set the y coordinate
-        board.placeShip(newShip);
+        bool placed = false;
+        while (!placed) {
+            int x = rand() % boardSize;
+            int y = rand() % boardSize;
+            auto newShip = std::make_unique<Ship>();
+            newShip->setX(x);  // Use mutator to set the x coordinate
+            newShip->setY(y);  // Use mutator to set the y coordinate
+            placed = board.placeShip(std::move(newShip));  // Only place ship if the spot is free
+        }
     }
 
     playGame(board);
