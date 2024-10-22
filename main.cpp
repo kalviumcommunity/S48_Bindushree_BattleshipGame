@@ -14,8 +14,13 @@ private:
     static int sunkShips;
 
 public:
-    // Constructor with default parameters
-    Ship(int x = 0, int y = 0) : x(x), y(y), sunk(false) {
+    // Default constructor
+    Ship() : x(0), y(0), sunk(false) {
+        totalShips++;  // Increment totalShips when a Ship is created
+    }
+
+    // Parameterized constructor
+    Ship(int x, int y) : x(x), y(y), sunk(false) {
         totalShips++;  // Increment totalShips when a Ship is created
     }
 
@@ -152,9 +157,8 @@ int main() {
         while (!placed) {
             int x = rand() % boardSize;
             int y = rand() % boardSize;
-            auto newShip = std::make_unique<Ship>();
-            newShip->setX(x);  // Use mutator to set the x coordinate
-            newShip->setY(y);  // Use mutator to set the y coordinate
+            // Use parameterized constructor
+            auto newShip = std::make_unique<Ship>(x, y);  
             placed = board.placeShip(std::move(newShip));  // Only place ship if the spot is free
         }
     }
