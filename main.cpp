@@ -8,104 +8,96 @@ class Ship {
 private:
     int x, y;
     bool sunk;
-
-    // Static variables to track total and sunk ships
     static int totalShips;
     static int sunkShips;
 
 public:
-    // Default constructor
     Ship() : x(0), y(0), sunk(false) {
-        totalShips++;  // Increment totalShips when a Ship is created
+        totalShips++; 
     }
-
-    // Parameterized constructor
     Ship(int x, int y) : x(x), y(y), sunk(false) {
-        totalShips++;  // Increment totalShips when a Ship is created
+        totalShips++;
     }
-
-    // Accessor (getter) for x
     int getX() const { return x; }
-
-    // Mutator (setter) for x
     void setX(int newX) { x = newX; }
-
-    // Accessor (getter) for y
     int getY() const { return y; }
-
-    // Mutator (setter) for y
     void setY(int newY) { y = newY; }
-
-    // Accessor (getter) for sunk
     bool isSunk() const { return sunk; }
-
-    // Mutator (method) to sink the ship
     void sink() {
-        if (!sunk) {  // Only increment sunkShips if it's the first time sinking this ship
+        if (!sunk) {  
             sunk = true;
-            sunkShips++;  // Increment sunkShips when a Ship is sunk
+            sunkShips++;
         }
     }
+    static int getTotalShips() { return totalShips; }
+    static int getSunkShips() { return sunkShips; }
+};
+int Ship::totalShips = 0;
+int Ship::sunkShips = 0;
 
-    // Static function to get the total number of ships
-    static int getTotalShips() {
-        return totalShips;
-    }
+// Class representing Submarine (Single Inheritance)
+class Submarine : public Ship {
+private:
+    bool submerged;
 
-    // Static function to get the number of sunk ships
-    static int getSunkShips() {
-        return sunkShips;
+public:
+    Submarine(int x, int y) : Ship(x, y), submerged(false) {}
+    void dive() { submerged = true; std::cout << "Submarine dove underwater.\n"; }
+    bool isSubmerged() const { return submerged; }
+};
+
+// Class representing Armored (base for Battleship - Multiple Inheritance)
+class Armored {
+private:
+    int armor;
+
+public:
+    Armored(int armor = 100) : armor(armor) {}
+    int getArmor() const { return armor; }
+    void takeDamage(int damage) {
+        armor -= damage;
+        if (armor < 0) armor = 0;
+        std::cout << "Armor reduced to " << armor << "\n";
     }
 };
 
-// Initialize static variables
-int Ship::totalShips = 0;
-int Ship::sunkShips = 0;
+// Class representing Battleship (Multiple Inheritance)
+class Battleship : public Ship, public Armored {
+public:
+    Battleship(int x, int y, int armor) : Ship(x, y), Armored(armor) {}
+    void fire() { std::cout << "Battleship fired its cannons!\n"; }
+};
 
 class Board {
 private:
     std::vector<std::vector<char>> grid;
-    std::vector<std::unique_ptr<Ship>> ships;  // Now using smart pointers to manage Ship objects
+    std::vector<std::unique_ptr<Ship>> ships;  
     int size;
 
 public:
     Board(int size) : size(size), grid(size, std::vector<char>(size, '-')) {}
-
-    // Accessor (getter) for size
     int getSize() const { return size; }
-
-    // Mutator (method) to add a ship to the board
     bool placeShip(std::unique_ptr<Ship> ship) {
         int x = ship->getX();
         int y = ship->getY();
-
-        if (grid[x][y] == 'S') {
-            return false;  // Ship already placed at this location
-        }
-
+        if (grid[x][y] == 'S') return false;
         this->ships.push_back(std::move(ship));
         this->grid[x][y] = 'S';
         return true;
     }
-
-    // Mutator (method) to handle an attack on the board
     bool attack(int x, int y) {
         if (x < 0 || x >= size || y < 0 || y >= size) {
             std::cout << "Out of bounds!\n";
             return false;
         }
-
         if (grid[x][y] == 'S') {
             grid[x][y] = 'X';
             std::cout << "Hit at (" << x << ", " << y << ")!\n";
             for (auto& ship : ships) {
-                if (ship->getX() == x && ship->getY() == y) {
-                    ship->sink();
-                }
+                if (ship->getX() == x && ship->getY() == y) ship->sink();
             }
             return true;
         }
-
         if (grid[x][y] == 'X' || grid[x][y] == 'O') {
             std::cout << "Already attacked (" << x << ", " << y << ").\n";
         } else {
@@ -114,18 +106,10 @@ public:
         }
         return false;
     }
-
-    // Accessor (getter) to check if all ships are sunk
-    bool allShipsSunk() const {
-        return Ship::getSunkShips() == Ship::getTotalShips();  // Check if all ships are sunk
-    }
-
-    // Print the current state of the board
+    bool allShipsSunk() const { return Ship::getSunkShips() == Ship::getTotalShips(); }
     void printBoard() const {
         for (const auto& row : grid) {
-            for (char cell : row) {
-                std::cout << cell << ' ';
-            }
+            for (char cell : row) std::cout << cell << ' ';
             std::cout << '\n';
         }
     }
@@ -145,21 +129,23 @@ void playGame(Board& board) {
 
 int main() {
     srand(static_cast<unsigned int>(time(0)));
-
-    int boardSize = 5;  // Initialize boardSize
+    int boardSize = 5;  
     int numShips = 3;
 
-    Board board(boardSize);  // Only one instance of Board
+    Board board(boardSize);
 
-    // Dynamically allocate memory for Ship objects and use accessors/mutators
+    // Adding a Battleship (using multiple inheritance)
+    auto battleship = std::make_unique<Battleship>(rand() % boardSize, rand() % boardSize, 200);
+    board.placeShip(std::move(battleship));
+
+    // Adding Submarines (using single inheritance)
     for (int i = 0; i < numShips; ++i) {
         bool placed = false;
         while (!placed) {
             int x = rand() % boardSize;
             int y = rand() % boardSize;
-            // Use parameterized constructor
-            auto newShip = std::make_unique<Ship>(x, y);  
-            placed = board.placeShip(std::move(newShip));  // Only place ship if the spot is free
+            auto newSub = std::make_unique<Submarine>(x, y);
+            placed = board.placeShip(std::move(newSub));
         }
     }
 
@@ -167,6 +153,5 @@ int main() {
 
     std::cout << "Total ships created: " << Ship::getTotalShips() << "\n";
     std::cout << "Total ships sunk: " << Ship::getSunkShips() << "\n";
-
     return 0;
 }
