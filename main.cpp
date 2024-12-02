@@ -12,26 +12,38 @@ private:
     static int sunkShips;
 
 public:
-    Ship() : x(0), y(0), sunk(false) {
-        totalShips++; 
-    }
-    Ship(int x, int y) : x(x), y(y), sunk(false) {
-        totalShips++;
-    }
+    Ship() : x(0), y(0), sunk(false) { totalShips++; }
+    Ship(int x, int y) : x(x), y(y), sunk(false) { totalShips++; }
+
     int getX() const { return x; }
     void setX(int newX) { x = newX; }
     int getY() const { return y; }
     void setY(int newY) { y = newY; }
     bool isSunk() const { return sunk; }
+
+    // Original sink method
     void sink() {
-        if (!sunk) {  
+        if (!sunk) {
             sunk = true;
             sunkShips++;
+            std::cout << "Ship at (" << x << ", " << y << ") is sunk.\n";
         }
     }
+
+    // Overloaded sink method with damage
+    void sink(int damage) {
+        if (!sunk) {
+            sunk = true;
+            sunkShips++;
+            std::cout << "Ship at (" << x << ", " << y << ") is sunk due to " << damage << " damage!\n";
+        }
+    }
+
+    // Static methods
     static int getTotalShips() { return totalShips; }
     static int getSunkShips() { return sunkShips; }
 };
+
 int Ship::totalShips = 0;
 int Ship::sunkShips = 0;
 
@@ -71,7 +83,7 @@ public:
 class Board {
 private:
     std::vector<std::vector<char>> grid;
-    std::vector<std::unique_ptr<Ship>> ships;  
+    std::vector<std::unique_ptr<Ship>> ships;
     int size;
 
 public:
@@ -94,7 +106,7 @@ public:
             grid[x][y] = 'X';
             std::cout << "Hit at (" << x << ", " << y << ")!\n";
             for (auto& ship : ships) {
-                if (ship->getX() == x && ship->getY() == y) ship->sink();
+                if (ship->getX() == x && ship->getY() == y) ship->sink(100); // Demonstrating overloaded sink
             }
             return true;
         }
@@ -129,7 +141,7 @@ void playGame(Board& board) {
 
 int main() {
     srand(static_cast<unsigned int>(time(0)));
-    int boardSize = 5;  
+    int boardSize = 5;
     int numShips = 3;
 
     Board board(boardSize);
