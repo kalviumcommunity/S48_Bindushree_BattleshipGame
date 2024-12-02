@@ -4,6 +4,7 @@
 #include <ctime>
 #include <memory>
 
+// Base class: Ship
 class Ship {
 private:
     int x, y;
@@ -37,29 +38,30 @@ public:
         }
     }
 
-    // Static methods to track ships
+    // Static methods to track ship statistics
     static int getTotalShips() { return totalShips; }
     static int getSunkShips() { return sunkShips; }
 };
 
+// Initialize static variables
 int Ship::totalShips = 0;
 int Ship::sunkShips = 0;
 
-// Single Inheritance: Submarine derived from Ship
+// Derived class: Submarine
 class Submarine : public Ship {
 private:
     bool submerged;
 
 public:
     Submarine(int x, int y) : Ship(x, y), submerged(false) {}
-    void dive() { 
-        submerged = true; 
-        std::cout << "Submarine dove underwater.\n"; 
+    void dive() {
+        submerged = true;
+        std::cout << "Submarine dove underwater.\n";
     }
     bool isSubmerged() const { return submerged; }
 };
 
-// Multiple Inheritance: Battleship derived from Ship and Armored
+// Auxiliary class: Armored
 class Armored {
 private:
     int armor;
@@ -74,12 +76,14 @@ public:
     }
 };
 
+// Derived class: Battleship
 class Battleship : public Ship, public Armored {
 public:
     Battleship(int x, int y, int armor) : Ship(x, y), Armored(armor) {}
     void fire() { std::cout << "Battleship fired its cannons!\n"; }
 };
 
+// Game Board class
 class Board {
 private:
     std::vector<std::vector<char>> grid;
@@ -132,6 +136,7 @@ public:
     }
 };
 
+// Gameplay function
 void playGame(Board& board) {
     int x, y;
     while (!board.allShipsSunk()) {
@@ -144,6 +149,7 @@ void playGame(Board& board) {
     std::cout << "All ships sunk! You win!\n";
 }
 
+// Main function
 int main() {
     srand(static_cast<unsigned int>(time(0)));
     int boardSize = 5;
@@ -173,6 +179,3 @@ int main() {
 
     return 0;
 }
-
-
-
