@@ -2,7 +2,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <memory>  // For smart pointers
+#include <memory>
 
 class Ship {
 private:
@@ -21,7 +21,7 @@ public:
     void setY(int newY) { y = newY; }
     bool isSunk() const { return sunk; }
 
-    // Original sink method
+    // Method Overloading: sink method with and without damage
     void sink() {
         if (!sunk) {
             sunk = true;
@@ -29,8 +29,6 @@ public:
             std::cout << "Ship at (" << x << ", " << y << ") is sunk.\n";
         }
     }
-
-    // Overloaded sink method with damage
     void sink(int damage) {
         if (!sunk) {
             sunk = true;
@@ -39,7 +37,7 @@ public:
         }
     }
 
-    // Static methods
+    // Static methods to track ships
     static int getTotalShips() { return totalShips; }
     static int getSunkShips() { return sunkShips; }
 };
@@ -47,18 +45,21 @@ public:
 int Ship::totalShips = 0;
 int Ship::sunkShips = 0;
 
-// Class representing Submarine (Single Inheritance)
+// Single Inheritance: Submarine derived from Ship
 class Submarine : public Ship {
 private:
     bool submerged;
 
 public:
     Submarine(int x, int y) : Ship(x, y), submerged(false) {}
-    void dive() { submerged = true; std::cout << "Submarine dove underwater.\n"; }
+    void dive() { 
+        submerged = true; 
+        std::cout << "Submarine dove underwater.\n"; 
+    }
     bool isSubmerged() const { return submerged; }
 };
 
-// Class representing Armored (base for Battleship - Multiple Inheritance)
+// Multiple Inheritance: Battleship derived from Ship and Armored
 class Armored {
 private:
     int armor;
@@ -73,7 +74,6 @@ public:
     }
 };
 
-// Class representing Battleship (Multiple Inheritance)
 class Battleship : public Ship, public Armored {
 public:
     Battleship(int x, int y, int armor) : Ship(x, y), Armored(armor) {}
@@ -88,15 +88,18 @@ private:
 
 public:
     Board(int size) : size(size), grid(size, std::vector<char>(size, '-')) {}
+
     int getSize() const { return size; }
+
     bool placeShip(std::unique_ptr<Ship> ship) {
         int x = ship->getX();
         int y = ship->getY();
         if (grid[x][y] == 'S') return false;
-        this->ships.push_back(std::move(ship));
-        this->grid[x][y] = 'S';
+        ships.push_back(std::move(ship));
+        grid[x][y] = 'S';
         return true;
     }
+
     bool attack(int x, int y) {
         if (x < 0 || x >= size || y < 0 || y >= size) {
             std::cout << "Out of bounds!\n";
@@ -106,7 +109,7 @@ public:
             grid[x][y] = 'X';
             std::cout << "Hit at (" << x << ", " << y << ")!\n";
             for (auto& ship : ships) {
-                if (ship->getX() == x && ship->getY() == y) ship->sink(100); // Demonstrating overloaded sink
+                if (ship->getX() == x && ship->getY() == y) ship->sink(50); // Demonstrating overloaded sink
             }
             return true;
         }
@@ -118,7 +121,9 @@ public:
         }
         return false;
     }
+
     bool allShipsSunk() const { return Ship::getSunkShips() == Ship::getTotalShips(); }
+
     void printBoard() const {
         for (const auto& row : grid) {
             for (char cell : row) std::cout << cell << ' ';
@@ -146,11 +151,11 @@ int main() {
 
     Board board(boardSize);
 
-    // Adding a Battleship (using multiple inheritance)
+    // Place a Battleship (Multiple Inheritance)
     auto battleship = std::make_unique<Battleship>(rand() % boardSize, rand() % boardSize, 200);
     board.placeShip(std::move(battleship));
 
-    // Adding Submarines (using single inheritance)
+    // Place Submarines (Single Inheritance)
     for (int i = 0; i < numShips; ++i) {
         bool placed = false;
         while (!placed) {
@@ -165,5 +170,6 @@ int main() {
 
     std::cout << "Total ships created: " << Ship::getTotalShips() << "\n";
     std::cout << "Total ships sunk: " << Ship::getSunkShips() << "\n";
+
     return 0;
 }
